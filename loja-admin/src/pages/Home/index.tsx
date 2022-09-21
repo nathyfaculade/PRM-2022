@@ -1,9 +1,14 @@
-export function HomePage(){
-    return(
-        <div>id="Home-page"
+import { useAuth } from "../../hook/useAuth"
+
+export function HomePage() {
+
+    const { user } = useAuth();
+
+    return (
+        <div id="home-page">
             <h1>Home Page</h1>
 
-            <h3>{use?</h3>
+            <h3>{user?.email}</h3>
         </div>
     )
 }
