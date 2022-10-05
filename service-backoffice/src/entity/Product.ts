@@ -2,6 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGenerat
 import { Brand } from "./Brand";
 import { Category } from "./Category";
 
+
 @Entity()
 export class Product extends BaseEntity {
 
@@ -14,7 +15,7 @@ export class Product extends BaseEntity {
     @Column('text', {nullable: true})
     description: string;
 
-    @Column({nullable: false})
+    @Column('decimal', {nullable: false, precision: 10, scale: 2})
     price: number;
 
     @Column({nullable: false, length: 1})

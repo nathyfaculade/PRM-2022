@@ -1,8 +1,8 @@
 import { AppDataSource } from './data-source';
 import express from 'express';
 import cors from 'cors';
-import routes from './routes';
 import dotenv from 'dotenv';
+import routes from './router';
 
 //Carrego variaveis de ambiente
 dotenv.config();
@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 //Determina a porta de execução
-const PORT = process.env.PORT || 3301;
+const PORT = process.env.PORT || 3302;
 
 //Middleware
 app.use(cors());

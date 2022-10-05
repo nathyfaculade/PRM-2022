@@ -1,8 +1,11 @@
 import 'reflect-metadata';
-import { Product } from './entity/Product';
-import { Category } from './entity/Category';
-import { Brand } from './entity/Brand';
+import { Customer } from './entity/Customer';
+import { Order } from './entity/Order';
+import { OrderItem } from './entity/OrderItem';
 import {DataSource} from 'typeorm';
+import { Brand } from './entity/Brand';
+import { Category } from './entity/Category';
+import { Product } from './entity/Product';
 
 export const AppDataSource = new DataSource({
     type: 'mysql',
@@ -13,5 +16,5 @@ export const AppDataSource = new DataSource({
     database: 'prmdb',
     synchronize: true,
     logging: true,
-    entities: [Brand, Category, Product]
+    entities: [OrderItem, Order, Customer, Brand, Category, Product]
 });
