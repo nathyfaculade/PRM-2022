@@ -1,59 +1,92 @@
-import { ColumnActionsMode, IColumn, PanelType, SelectionMode, ShimmeredDetailsList, Stack, TextField } from "@fluentui/react";
-import { IBrand } from "index";
-import { useEffect, useState } from "react";
+import { ColumnActionsMode, IColumn, Panel, PanelType, SelectionMode, ShimmeredDetailsList, Stack, TextField } from "@fluentui/react";
+import { IBrand } from "@typesCustom";
+import { useCallback, useEffect, useState } from "react";
+import { MessageBarCustom } from "../../components/MessageBarCustom";
 import { PageToolBar } from "../../components/PageToolBar";
-import { listBrands } from "../../services/serve";
+import { PanelFooterContent } from "../../components/PanelFooterContent";
+import { creatBrand } from "../../services/serve";
+import { listBrands } from "../../services/server";
 
-export function BrandPage(){
 
-    //Entities
-    const[brand,setBrand] = useState<IBrand>({} as IBrand)
-    const[brands,setBrands] = useState<IBrand>({} as IBrand)
+export function BrandPage() {
 
-    //State - mensagens
-    const [massageError, setmessageError] = useState('');
-    const [massageSuccess, setmassageSuccess] = useState('');
+    //States - Entidades
+    const [brand, setBrand] = useState<IBrand>({} as IBrand);
+    const [brands, setBrands] = useState<IBrand[]>([]);
+
+    //State - Mensagens
+    const [messageError, setMessageError] = useState('');
+    const [messageSuccess, setMessageSuccess] = useState('');
 
     //State - Carregando
     const [loading, setLoading] = useState(true);
 
     //State - Abre e fecha form
-    const [openPanel, setOpenPanel] = useState(true);
+    const [openPanel, setOpenPanel] = useState(false);
 
     //Colunas
-    const columns: IColumn[]=
-    
-    {
-        key: 'name',
-        name: 'Nome da Marca',
-        fieldName: 'name',
-        minWidth: 100,
-        isResizable: false,
-        columnActionMode: ColumnActionsMode.disabled
-    }
+    const columns:  IColumn[] = [
+        {
+            key: 'name',
+            name: 'Nome da Marca',
+            fieldName: 'name',
+            minWidth: 100,
+            isResizable: false,
+            columnActionsMode: ColumnActionsMode.disabled
+        }
+    ]
 
-    useEffect{()=> {
+    //Rederizar Barra de botões no painel
+    const onRenderFooterContent = (): JSX.Element => (
+        <PanelFooterContent
+            id={brand.id as number}
+            loading={loading}
+            onConfirm={handleConfirmSave}
+            onDismiss={()=> setOpenPanel(false)} />
+    );
+    
+
+    useEffect(()=> {
 
         listBrands()
             .then(result => {
-                setBrand(result.data);
-            )
+                setBrands(result.data)
+            })
             .catch(error => {
-                setmessageError(error.messagw);
+                setMessageError(error.message);
                 setInterval(()=>{
-                    setmessageError('')
-                }, 1000)
+                    handleDemissMessageBar();
+                }, 10000);
             })
             .finally(() => setLoading(false))
 
-    }, []} 
+    }, [])
 
-    function handleNew(){
+    function handleDemissMessageBar() {
+        setMessageError('');
+        setMessageSuccess('');
+    }
+
+    function handleNew() {
         setBrand({
-            name:''
+            name: ''
         });
-
+        
         setOpenPanel(true);
+    }
+
+    function handleConfirmSave(){ console.log(brand)
+        creatBrand(brand)
+        .then(result => {
+            setBrands(result.data)
+        })
+        .catch(error => {
+            setMessageError(error.message);
+            setInterval(()=>{
+                handleDemissMessageBar();
+            }, 10000);
+        })
+        .finally(() => setLoading(false))
     }
 
     return (
@@ -64,41 +97,40 @@ export function BrandPage(){
                     loading={loading}
                     onNew={ handleNew }/>
 
-                <MassageBarCuston
-                    messageError={massageError}
-                    messageSuccess={massageSuccess}
-                    onDismiss={handleDemissMassageBar}/>
+                <MessageBarCustom
+                    messageError={messageError}
+                    messageSuccess={messageSuccess}
+                    onDismiss={handleDemissMessageBar} />
 
 
                 <div className="data-list">
                     <ShimmeredDetailsList
-                        items={brand}
+                        items={brands}
                         columns={columns}
-                        setKey={}
+                        setKey="set"
                         enableShimmer={loading}
-                        selectionMode={SelectionMode.none}/>
-                </div>
+                        selectionMode={SelectionMode.none} />
+                </div> 
             </Stack>
 
-            <Panel 
-                className="painel-form"
+            <Panel
+                className="panel-form"
                 isOpen={openPanel}
                 type={PanelType.medium}
                 headerText="Cadastro de Marca"
-                isFooterAtBotton={true}
+                isFooterAtBottom={true}
                 onDismiss={() => setOpenPanel(false)}>
 
-                <p>Preencha TODOS os campos obrigatorios indentificados po <span className="required">*</span></p>
+                <p>Preencha TODOS os campos obrigatórios identificados por <span className="required">*</span></p>
 
-
-                <Stack horizontal={false} className="panel-form-contant"
-                    <TextField 
-                    label="Nome da Marca"
-                    required
-                    value={brand.name}
-                    onChange={event => setBrand({...brand, name:(event.target as HTMLInputElement).value})}
-
-
+                <Stack horizontal={false} className="panel-form-content">
+                    <TextField
+                        label="Nome da Marca"
+                        required
+                        value={brand.name}
+                        onChange={event => setBrand({...brand, name: (event.target as HTMLInputElement).value})} />
+                </Stack>
+                {JSON.stringify(brand)}
             </Panel>
         </div>
     )
